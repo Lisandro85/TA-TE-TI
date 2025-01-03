@@ -7,8 +7,18 @@ import { checkWinner } from "./logics/board";
 import { WinnerModal } from "./components/WinnersModal";
 
 function App() {
-  const [board, setBoard] = useState(Array(9).fill(null));
-  const [turn, setTurn] = useState(Turns.x);
+  const [board, setBoard] = useState(() => {
+    const boardFromLocalStorage = window.localStorage.getItem("board");
+    return boardFromLocalStorage
+      ? JSON.parse(boardFromLocalStorage)
+      : Array(9).fill(null);
+  });
+
+  const [turn, setTurn] = useState(() => {
+    const turnFromLocalStorage = window.localStorage.getItem("turn");
+    return turnFromLocalStorage ?? Turns.x;
+  });
+
   const [winner, setWinner] = useState(null);
 
   const updateBoard = (index) => {
@@ -19,6 +29,8 @@ function App() {
     setBoard(newBoard);
 
     const newTurn = turn === Turns.x ? Turns.o : Turns.x;
+    window.localStorage.setItem("board", JSON.stringify(newBoard));
+    window.localStorage.setItem("turn", turn);
     setTurn(newTurn);
 
     const newWinner = checkWinner(newBoard);
@@ -34,6 +46,8 @@ function App() {
     setBoard(Array(9).fill(null));
     setTurn(Turns.x);
     setWinner(null);
+    window.localStorage.removeItem("board");
+    window.localStorage.removeItem("turn");
   };
 
   return (
